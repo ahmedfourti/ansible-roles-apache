@@ -13,13 +13,15 @@ No requirements
 Role Variables
 --------------
 
-**serverName** : The server name used by web server  
+**serverName** : The server name used by web server
+**serverAlias**: The serverAlias     
 **http_port**: (optional) The port to listen on, if not set the default port is 80  
+**http_host**: (optional) The IP to use, if not set the default is "*"    
 **serverAdmin**: (optional) Email address of the webmaster  
 **docRoot**: Path to deploy the application  
 **logsDir**: Path for logs    
-**app_repo**: URL of the app to deploy  
-**repo_version**: Your repo version. If not set, default is 'master'  
+**app_repo**: URL of the repo to deploy  
+**repo_version**: Your repo version. If not set, default is 'master'    
 
 Dependencies
 ------------
@@ -48,7 +50,9 @@ Example Playbook
        apps:
          local.home:
            serverName: local.home
-           http_port: 8080
+           serverAlias: local.home
+           http_port: 80
+           http_host: '*'
            serverAdmin: root@webmaster.com
            docRoot: /var/www
            logsDir: /var/log
@@ -56,7 +60,9 @@ Example Playbook
            repo_version: master
          local.prod:
            serverName: local.prod
-           http_port: 8080
+           serverAlias: local.prod
+           http_port: 80
+           http_host: '*'
            serverAdmin: root@webmaster.com
            docRoot: /var/www
            logsDir: /var/log
