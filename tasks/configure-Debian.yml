@@ -1,0 +1,29 @@
+---
+- name: Creating the DocRoot for {{ item.value.serverName }}
+  file: path={{ item.value.docRoot }} state=directory
+
+- name: Deleting welcome page
+  file:
+    state: absent
+    path: "/etc/apache2/sites-enabled/000-default.conf"
+
+- name: Creating the configuration file for {{ item.value.serverName }}
+  template: src=templates/vhost.j2 dest=/etc/apache2/sites-available/{{ item.value.serverName }}.conf
+  notify: apache reload
+
+- name: Configuring ports for {{ item.value.serverName }}
+  replace:
+    path: /etc/apache2/ports.conf
+    regexp: '^(NameVirtualHost|Listen)\s+80\s*$'
+    replace: '\1 {{ item.value.http_port }}'
+  notify: apache reload
+
+- name: Enabling '{{ item.value.serverName }}'
+  file:
+    src: /etc/apache2/sites-available/{{ item.value.serverName }}.conf
+    dest: /etc/apache2/sites-enabled/{{ item.value.serverName }}.conf
+    owner: www-data
+    group: www-data
+    state: link
+  notify: apache reload
+

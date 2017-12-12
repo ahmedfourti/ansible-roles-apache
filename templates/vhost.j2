@@ -1,0 +1,9 @@
+<VirtualHost *:{{ item.value.http_port }}>
+    DocumentRoot "{{ item.value.docRoot }}/{{ item.value.serverName }}"
+    ServerName {{ item.value.serverName }}
+    {% if item.value.serverAdmin is defined %}
+    ServerAdmin {{ item.value.serverAdmin }}
+    {% endif %}
+    ErrorLog {{ item.value.logsDir }}/errors-{{ item.value.serverName }}.log
+    Customlog {{ item.value.logsDir }}/access-{{ item.value.serverName }}.log combined
+</VirtualHost>

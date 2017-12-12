@@ -1,0 +1,19 @@
+---
+- name: Creating the DocRoot for {{ item.value.serverName }}
+  file: path={{ item.value.docRoot }} state=directory
+
+- name: Deleting welcome page
+  file:
+    state: absent
+    path: "/etc/httpd/conf.d/welcome.conf"
+
+- name: Creating the configuration file for {{ item.value.serverName }}
+  template: src=templates/vhost.j2 dest=/etc/httpd/conf.d/{{ item.value.serverName }}.conf
+  notify: httpd reload
+
+- name: Configuring ports for {{ item.value.serverName }}
+  replace:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^(NameVirtualHost|Listen)\s+80\s*$'
+    replace: '\1 {{ item.value.http_port }}'
+  notify: httpd reload

@@ -1,0 +1,7 @@
+---
+# tasks file for utils
+- name : Installing apache2
+  apt: name={{ item }} state=latest
+  with_items:
+    - apache2
+    - apache2-utils

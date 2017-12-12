@@ -1,0 +1,7 @@
+---
+- name: Deploying {{ item.value.serverName }}
+  git:
+    repo: '{{ item.value.app_repo }}'
+    dest: "{{ item.value.docRoot }}/{{ item.value.serverName }}"
+    version: "{{ item.value.repo_version | default('master') }}"
+    force: yes
