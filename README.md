@@ -1,7 +1,8 @@
 Role Name: Apache
 ================
 
-TODO
+This role will install and configure your web-servers. It will install apache2/httpd, configure the virtualhost with the provided variables and enable them.
+You can configure multiple virtualhosts. See "Example" part. 
 
 Requirements
 ------------
