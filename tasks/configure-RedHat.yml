@@ -15,5 +15,5 @@
   replace:
     path: /etc/httpd/conf/httpd.conf
     regexp: '^(NameVirtualHost|Listen)\s+80\s*$'
-    replace: '\1 {{ item.value.http_port }}'
+    replace: '\1 {{ item.value.http_port | default("80")}}'
   notify: httpd reload

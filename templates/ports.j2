@@ -1,4 +1,4 @@
-Listen {{ item.value.http_port }}
+Listen {{ item.value.http_port | default('80') }}
 
 <IfModule ssl_module>
         Listen 443

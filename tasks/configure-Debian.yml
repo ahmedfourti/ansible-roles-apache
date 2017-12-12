@@ -15,7 +15,7 @@
   replace:
     path: /etc/apache2/ports.conf
     regexp: '^(NameVirtualHost|Listen)\s+80\s*$'
-    replace: '\1 {{ item.value.http_port }}'
+    replace: '\1 {{ item.value.http_port | default("80") }}'
   notify: apache reload
 
 - name: Enabling '{{ item.value.serverName }}'

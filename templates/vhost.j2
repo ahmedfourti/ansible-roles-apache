@@ -1,4 +1,4 @@
-<VirtualHost *:{{ item.value.http_port }}>
+<VirtualHost *:{{ item.value.http_port | default('s') }}>
     DocumentRoot "{{ item.value.docRoot }}/{{ item.value.serverName }}"
     ServerName {{ item.value.serverName }}
     {% if item.value.serverAdmin is defined %}
