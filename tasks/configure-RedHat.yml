@@ -11,6 +11,15 @@
   template: src=templates/vhost.j2 dest=/etc/httpd/conf.d/{{ item.value.serverName }}.conf
   notify: httpd reload
 
+- name: Enabling modules..."{{ mod }}"
+  file:
+    src: /etc/apache2/mods-available/{{ mod }}
+    dest: /etc/apache2/mods-enabled/{{ mod }}
+    state: link
+  with_items: "{{ enable_mods }}"
+  loop_control:
+    loop_var: mod
+
 - name: Configuring ports for {{ item.value.serverName }}
   replace:
     path: /etc/httpd/conf/httpd.conf

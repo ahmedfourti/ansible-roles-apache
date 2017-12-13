@@ -1,5 +1,5 @@
 ---
-- name: Creating the DocRoot for {{ item.value.serverName }}
+- name: Creating the DocRoot for '{{ item.value.serverName }}'
   file: path={{ item.value.docRoot }} state=directory
 
 - name: Deleting welcome page
@@ -7,15 +7,26 @@
     state: absent
     path: "/etc/apache2/sites-enabled/000-default.conf"
 
-- name: Creating the configuration file for {{ item.value.serverName }}
+- name: Creating the configuration file for '{{ item.value.serverName }}'
   template: src=templates/vhost.j2 dest=/etc/apache2/sites-available/{{ item.value.serverName }}.conf
   notify: apache reload
 
-- name: Configuring ports for {{ item.value.serverName }}
+- name: Configuring ports for '{{ item.value.serverName }}'
   replace:
     path: /etc/apache2/ports.conf
     regexp: '^(NameVirtualHost|Listen)\s+80\s*$'
     replace: '\1 {{ item.value.http_port | default("80") }}'
+  notify: apache reload
+
+- name: Enabling modules..."{{ mod }}"
+  file:
+    src: /etc/apache2/mods-available/{{ mod }}
+    dest: /etc/apache2/mods-enabled/{{ mod }}
+    state: link
+  with_items: "{{ enable_mods }}"
+  loop_control:
+    loop_var: mod
+
   notify: apache reload
 
 - name: Enabling '{{ item.value.serverName }}'

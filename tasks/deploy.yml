@@ -1,5 +1,5 @@
 ---
-- name: Deploying {{ item.value.serverName }}
+- name: Deploying '{{ item.value.serverName }}'
   git:
     repo: '{{ item.value.app_repo }}'
     dest: "{{ item.value.docRoot }}/{{ item.value.serverName }}"

@@ -13,8 +13,8 @@ No requirements
 Role Variables
 --------------
 
-**serverName** : The server name used by web server
-**serverAlias**: The serverAlias     
+**serverName** : The server name used by web server  
+**serverAlias**: The serverAlias       
 **http_port**: (optional) The port to listen on, if not set the default port is 80  
 **http_host**: (optional) The IP to use, if not set the default is "*"    
 **serverAdmin**: (optional) Email address of the webmaster  

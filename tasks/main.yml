@@ -15,6 +15,6 @@
   when: ansible_os_family == 'Debian'
   with_dict: "{{ apps }}"
 
-- name: Deploying {{ item.value.serverName }}
+- name: Deploying application
   include: deploy.yml
   with_dict: "{{ apps }}"
