@@ -2,19 +2,19 @@
 # tasks file for apache
 - include: setup-RedHat.yml
   when: ansible_os_family == 'RedHat'
-  with_dict: "{{ apps }}"
+  with_dict: "{{ vhosts }}"
 
 - include: setup-Debian.yml
   when: ansible_os_family == 'Debian'
 
 - include: configure-RedHat.yml
   when: ansible_os_family == 'RedHat'
-  with_dict: "{{ apps }}"
+  with_dict: "{{ vhosts }}"
 
 - include: configure-Debian.yml
   when: ansible_os_family == 'Debian'
-  with_dict: "{{ apps }}"
+  with_dict: "{{ vhosts }}"
 
 - name: Deploying application
   include: deploy.yml
-  with_dict: "{{ apps }}"
+  with_dict: "{{ vhosts }}"

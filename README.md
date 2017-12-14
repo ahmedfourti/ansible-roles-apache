@@ -49,8 +49,9 @@ Example Playbook
        - web-centos
      roles:
        - apache
+     become: yes
      vars:
-       apps:
+       vhosts:
          local.home:
            serverName: local.home
            serverAlias: local.home
