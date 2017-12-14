@@ -1,32 +1,40 @@
 ---
-- name: Creating the DocRoot for '{{ item.value.serverName }}'
-  file: path={{ item.value.docRoot }} state=directory
-
 - name: Deleting welcome page
   file:
     state: absent
     path: "/etc/apache2/sites-enabled/000-default.conf"
+  notify: apache reload
 
 - name: Creating the configuration file for '{{ item.value.serverName }}'
   template: src=templates/vhost.j2 dest=/etc/apache2/sites-available/{{ item.value.serverName }}.conf
   notify: apache reload
 
 - name: Configuring ports for '{{ item.value.serverName }}'
-  replace:
+  lineinfile:
     path: /etc/apache2/ports.conf
-    regexp: '^(NameVirtualHost|Listen)\s+80\s*$'
-    replace: '\1 {{ item.value.http_port | default("80") }}'
+    line: 'Listen {{ item.value.http_port }}'
   notify: apache reload
 
-- name: Enabling modules..."{{ mod }}"
-  file:
-    src: /etc/apache2/mods-available/{{ mod }}
-    dest: /etc/apache2/mods-enabled/{{ mod }}
-    state: link
-  with_items: "{{ enable_mods }}"
+- name: Disabling ports
+  lineinfile:
+    path: /etc/apache2/ports.conf
+    state: absent
+    line: 'Listen {{ port }}'
+  with_items: "{{ http_port_disabled }}"
   loop_control:
-    loop_var: mod
+    loop_var: port
+  when: http_port_disabled is defined
+  notify: apache reload
 
+- name: Enabling modules..."{{ enable_mods }}"
+  file:
+    src: /etc/apache2/mods-available/{{ mods }}
+    dest: /etc/apache2/mods-enabled/{{ mods }}
+    state: link
+  with_items: "{{ mods_enabled }}"
+  loop_control:
+    loop_var: mods
+  when: mods_enabled is defined
   notify: apache reload
 
 - name: Enabling '{{ item.value.serverName }}'

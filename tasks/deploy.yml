@@ -1,7 +1,12 @@
 ---
+- name: Creating the DocRoot for '{{ item.value.serverName }}'
+  file: path={{ item.value.docRoot }} state=directory
+  notify: apache reload
+
 - name: Deploying '{{ item.value.serverName }}'
   git:
     repo: '{{ item.value.app_repo }}'
     dest: "{{ item.value.docRoot }}/{{ item.value.serverName }}"
     version: "{{ item.value.repo_version | default('master') }}"
     force: yes
+  notify: apache reload

@@ -1,7 +1,4 @@
 ---
-- name: Creating the DocRoot for {{ item.value.serverName }}
-  file: path={{ item.value.docRoot }} state=directory
-
 - name: Deleting welcome page
   file:
     state: absent
@@ -11,18 +8,19 @@
   template: src=templates/vhost.j2 dest=/etc/httpd/conf.d/{{ item.value.serverName }}.conf
   notify: httpd reload
 
-- name: Enabling modules..."{{ mod }}"
-  file:
-    src: /etc/apache2/mods-available/{{ mod }}
-    dest: /etc/apache2/mods-enabled/{{ mod }}
-    state: link
-  with_items: "{{ enable_mods }}"
-  loop_control:
-    loop_var: mod
-
-- name: Configuring ports for {{ item.value.serverName }}
-  replace:
+- name: Configuring ports for '{{ item.value.serverName }}'
+  lineinfile:
     path: /etc/httpd/conf/httpd.conf
-    regexp: '^(NameVirtualHost|Listen)\s+80\s*$'
-    replace: '\1 {{ item.value.http_port | default("80")}}'
+    line: 'Listen {{ item.value.http_port }}'
+  notify: httpd reload
+
+- name: Disabling ports
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    state: absent
+    line: 'Listen {{ port }}'
+  with_items: "{{ http_port_disabled }}"
+  loop_control:
+    loop_var: port
+  when: http_port_disabled is defined
   notify: httpd reload
