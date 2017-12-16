@@ -14,7 +14,3 @@
 - include: configure-Debian.yml
   when: ansible_os_family == 'Debian'
   with_dict: "{{ vhosts }}"
-
-- name: Deploying application
-  include: deploy.yml
-  with_dict: "{{ vhosts }}"

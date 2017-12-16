@@ -1,5 +1,5 @@
 ---
 # tasks file for utils
 - name : Installing httpd
-  yum: name=httpd state=latest update_cache=yes
+  yum: name=httpd state={{ package_state }} update_cache=yes
   notify: httpd reload

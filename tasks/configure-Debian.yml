@@ -5,14 +5,24 @@
     path: "/etc/apache2/sites-enabled/000-default.conf"
   notify: apache reload
 
+- name: Creating the DocRoot for '{{ item.value.serverName }}'
+  file:
+    path: "{{ item.value.docRoot }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    recurse: yes
+
 - name: Creating the configuration file for '{{ item.value.serverName }}'
   template: src=templates/vhost.j2 dest=/etc/apache2/sites-available/{{ item.value.serverName }}.conf
+  when: item.value.vhost_state != 'absent'
   notify: apache reload
 
 - name: Configuring ports for '{{ item.value.serverName }}'
   lineinfile:
     path: /etc/apache2/ports.conf
     line: 'Listen {{ item.value.http_port }}'
+  when: item.value.vhost_state != 'absent'
   notify: apache reload
 
 - name: Disabling ports
@@ -44,5 +54,14 @@
     owner: www-data
     group: www-data
     state: link
+  when: item.value.vhost_state != 'absent'
   notify: apache reload
 
+- name: Deploying '{{ item.value.serverName }}'
+  git:
+    repo: '{{ item.value.app_repo }}'
+    dest: "{{ item.value.docRoot }}/{{ item.value.serverName }}"
+    version: "{{ item.value.repo_version | default('master') }}"
+    force: yes
+  when: item.value.vhost_state != 'absent'
+  notify: apache reload
