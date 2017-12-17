@@ -1,38 +1,32 @@
 ---
+
+- name: Include variables for RedHat systems
+  include_vars: vars-RedHat.yml
+
 - name: Deleting welcome page
   file:
     state: absent
-    path: "/etc/httpd/conf.d/welcome.conf"
+    path: "{{ server_conf }}/conf.d/welcome.conf"
 
 - name: Delete default Document Root
   replace:
-    path: /etc/httpd/conf/httpd.conf
+    path: "{{ server_conf }}/conf/httpd.conf"
     regexp: 'DocumentRoot "/var/www/html"'
     replace: 'DocumentRoot "/var/www/"'
 
-- name: Creating the DocRoot for '{{ item.value.serverName }}'
-  file:
-    path: "{{ item.value.docRoot }}"
-    state: directory
-    owner: apache
-    group: apache
-    recurse: yes
-
 - name: Creating the configuration file for {{ item.value.serverName }}
-  template: src=templates/vhost.j2 dest=/etc/httpd/conf.d/{{ item.value.serverName }}.conf
+  template: src=templates/vhost.j2 dest="{{ server_conf }}/conf.d/{{ item.value.serverName }}.conf"
   notify: httpd reload
-  when: item.value.vhost_state != 'absent'
 
 - name: Configuring ports for '{{ item.value.serverName }}'
   lineinfile:
-    path: /etc/httpd/conf/httpd.conf
+    path: "{{ server_conf }}/conf/httpd.conf"
     line: 'Listen {{ item.value.http_port }}'
   notify: httpd reload
-  when: item.value.vhost_state != 'absent'
 
 - name: Disabling ports
   lineinfile:
-    path: /etc/httpd/conf/httpd.conf
+    path: "{{ server_conf }}/conf/httpd.conf"
     state: absent
     line: 'Listen {{ port }}'
   with_items: "{{ http_port_disabled }}"
@@ -41,24 +35,20 @@
   when: http_port_disabled is defined
   notify: httpd reload
 
+- name: Enabling modules...
+  lineinfile:
+    path: "{{ server_conf }}/conf.modules.d/00-base.conf"
+    line: 'LoadModule {{ mods }}'
+  with_items: "{{ httpd_modules }}"
+  loop_control:
+    loop_var: mods
+  when: httpd_modules is defined
+  notify: httpd reload
+
 - name: Deploying '{{ item.value.serverName }}'
   git:
     repo: '{{ item.value.app_repo }}'
     dest: "{{ item.value.docRoot }}/{{ item.value.serverName }}"
     version: "{{ item.value.repo_version | default('master') }}"
     force: yes
-  when: item.value.vhost_state != 'absent'
   notify: httpd reload
-
-### CleanUP
-- name: Cleanup DocumentRoot for {{ item.value.app_repo }}
-  file:
-    path: "{{ item.value.docRoot }}/{{ item.value.serverName }}"
-    state: absent
-  when: item.value.vhost_state == 'absent'
-
-- name: Cleanup Configuration for {{ item.value.app_repo }}
-  file:
-    path: "/etc/httpd/conf.d/{{ item.value.serverName }}.conf"
-    state: absent
-  when: item.value.vhost_state == 'absent'

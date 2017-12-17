@@ -1,0 +1,11 @@
+---
+
+- name: Cleanup DocumentRoot for {{ item.value.app_repo }}
+  file:
+    path: "{{ item.value.docRoot }}/{{ item.value.serverName }}"
+    state: absent
+
+- name: Deleting configuration file for {{ item.value.app_repo }}
+  file:
+    path: "{{ server_conf }}/conf.d/{{ item.value.serverName }}.conf"
+    state: absent

@@ -1,0 +1,4 @@
+---
+
+server_conf: /etc/apache2
+logsDir: /var/log/apache2

@@ -1,33 +1,30 @@
 ---
-- name: Deleting welcome page
+
+- name: Deleting default configuration
   file:
     state: absent
-    path: "/etc/apache2/sites-enabled/000-default.conf"
+    path: "{{ paths }}"
+  with_items:
+    - "{{ server_conf }}/sites-enabled/000-default.conf"
+    - "{{ server_conf }}/sites-available/000-default.conf"
+  loop_control:
+    loop_var: paths
   notify: apache reload
 
-- name: Creating the DocRoot for '{{ item.value.serverName }}'
-  file:
-    path: "{{ item.value.docRoot }}"
-    state: directory
-    owner: www-data
-    group: www-data
-    recurse: yes
-
 - name: Creating the configuration file for '{{ item.value.serverName }}'
-  template: src=templates/vhost.j2 dest=/etc/apache2/sites-available/{{ item.value.serverName }}.conf
+  template: src=templates/vhost.j2 dest="{{ server_conf }}/sites-available/{{ item.value.serverName }}.conf"
   when: item.value.vhost_state != 'absent'
   notify: apache reload
 
 - name: Configuring ports for '{{ item.value.serverName }}'
   lineinfile:
-    path: /etc/apache2/ports.conf
+    path: "{{ server_conf }}/ports.conf"
     line: 'Listen {{ item.value.http_port }}'
-  when: item.value.vhost_state != 'absent'
   notify: apache reload
 
 - name: Disabling ports
   lineinfile:
-    path: /etc/apache2/ports.conf
+    path: "{{ server_conf }}/ports.conf"
     state: absent
     line: 'Listen {{ port }}'
   with_items: "{{ http_port_disabled }}"
@@ -36,10 +33,10 @@
   when: http_port_disabled is defined
   notify: apache reload
 
-- name: Enabling modules..."{{ enable_mods }}"
+- name: Enabling modules...
   file:
-    src: /etc/apache2/mods-available/{{ mods }}
-    dest: /etc/apache2/mods-enabled/{{ mods }}
+    src: "{{ server_conf }}/mods-available/{{ mods }}"
+    dest: "{{ server_conf }}/mods-enabled/{{ mods }}"
     state: link
   with_items: "{{ mods_enabled }}"
   loop_control:
@@ -49,12 +46,11 @@
 
 - name: Enabling '{{ item.value.serverName }}'
   file:
-    src: /etc/apache2/sites-available/{{ item.value.serverName }}.conf
-    dest: /etc/apache2/sites-enabled/{{ item.value.serverName }}.conf
+    src: "{{ server_conf }}/sites-available/{{ item.value.serverName }}.conf"
+    dest: "{{ server_conf }}/sites-enabled/{{ item.value.serverName }}.conf"
     owner: www-data
     group: www-data
     state: link
-  when: item.value.vhost_state != 'absent'
   notify: apache reload
 
 - name: Deploying '{{ item.value.serverName }}'
@@ -63,5 +59,4 @@
     dest: "{{ item.value.docRoot }}/{{ item.value.serverName }}"
     version: "{{ item.value.repo_version | default('master') }}"
     force: yes
-  when: item.value.vhost_state != 'absent'
   notify: apache reload

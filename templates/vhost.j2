@@ -7,6 +7,6 @@
     {% if item.value.serverAdmin is defined %}
     ServerAdmin {{ item.value.serverAdmin }}
     {% endif %}
-    ErrorLog {{ item.value.logsDir }}/errors-{{ item.value.serverName }}.log
-    Customlog {{ item.value.logsDir }}/access-{{ item.value.serverName }}.log combined
+    ErrorLog {{ logsDir }}/errors-{{ item.value.serverName }}.log
+    Customlog {{ logsDir }}/access-{{ item.value.serverName }}.log combined
 </VirtualHost>

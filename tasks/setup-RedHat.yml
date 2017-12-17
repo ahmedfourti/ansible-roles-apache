@@ -1,5 +1,17 @@
 ---
 # tasks file for utils
+
+- name: Include variables for RedHat systems
+  include_vars: vars-RedHat.yml
+
 - name : Installing httpd
-  yum: name=httpd state={{ package_state }} update_cache=yes
-  notify: httpd reload
+  yum: name={{ item }} state={{ package_state }} update_cache=yes
+  with_items:
+    - httpd
+    - mod_ssl
+
+- name: Deleting "{{ server_conf }}"
+  file:
+    path: "{{ server_conf }}"
+    state: absent
+  when: package_state == 'absent'

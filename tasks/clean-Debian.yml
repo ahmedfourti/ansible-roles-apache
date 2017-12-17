@@ -1,0 +1,16 @@
+---
+
+- name: Deleting DocumentRoot for {{ item.value.serverName }}
+  file:
+    path: "{{ item.value.docRoot }}/{{ item.value.serverName }}"
+    state: absent
+
+- name: Deleting configuration file for {{ item.value.serverName }}
+  file:
+    path: "{{ paths }}"
+    state: absent
+  with_items:
+    - "{{ server_conf }}/sites-enabled/{{ item.value.serverName }}.conf"
+    - "{{ server_conf }}/sites-available/{{ item.value.serverName }}.conf"
+  loop_control:
+    loop_var: paths

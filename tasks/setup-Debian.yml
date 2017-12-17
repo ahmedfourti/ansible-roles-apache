@@ -1,7 +1,17 @@
 ---
 # tasks file for utils
+
+- name: Include variables for Debian systems
+  include_vars: vars-Debian.yml
+
 - name : Installing apache2
-  apt: name={{ item }} state={{ package_state }}
+  apt: name={{ item }} state={{ package_state }} update_cache=yes
   with_items:
     - apache2
     - apache2-utils
+
+- name: Deleting configuration files
+  file:
+    path: "{{ server_conf }}"
+    state: absent
+  when: package_state == 'absent'

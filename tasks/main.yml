@@ -1,16 +1,24 @@
 ---
 # tasks file for apache
+
 - include: setup-RedHat.yml
   when: ansible_os_family == 'RedHat'
-  with_dict: "{{ vhosts }}"
 
 - include: setup-Debian.yml
   when: ansible_os_family == 'Debian'
 
 - include: configure-RedHat.yml
-  when: ansible_os_family == 'RedHat'
+  when: ansible_os_family == 'RedHat' and item.value.vhost_state != 'absent'
   with_dict: "{{ vhosts }}"
 
 - include: configure-Debian.yml
-  when: ansible_os_family == 'Debian'
+  when: ansible_os_family == 'Debian' and item.value.vhost_state != 'absent'
+  with_dict: "{{ vhosts }}"
+
+- include: clean-Debian.yml
+  when: ansible_os_family == 'Debian' and item.value.vhost_state == 'absent'
+  with_dict: "{{ vhosts }}"
+
+- include: clean-RedHat.yml
+  when: ansible_os_family == 'RedHat' and item.value.vhost_state == 'absent'
   with_dict: "{{ vhosts }}"
